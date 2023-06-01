@@ -1,6 +1,7 @@
-!pip install datasets # install dataset loader
-!pip install transformers # install vision transformers
-!huggingface-cli login # needed to get imagenet-1k (need account with hugging face)
+#pip install datasets # install dataset loader
+#pip install transformers # install vision transformers
+#pip install optimum # to_bettertransformer function (part of huggingface)
+#huggingface-cli login # needed to get imagenet-1k (need account with hugging face)
 
 from datasets import load_dataset
 from transformers import ViTForImageClassification, ViTImageProcessor
@@ -14,7 +15,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 
 # Define model (DeiT base)
 model = ViTForImageClassification.from_pretrained('facebook/deit-base-patch16-224')
-model = model.to(device)
+model = model.to_bettertransformer().to(device)
 
 # Define feature extractor
 feature_extractor = ViTImageProcessor.from_pretrained('facebook/deit-base-patch16-224')
