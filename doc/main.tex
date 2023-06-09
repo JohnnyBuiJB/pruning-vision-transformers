@@ -1,0 +1,227 @@
+% CVPR 2022 Paper Template
+% based on the CVPR template provided by Ming-Ming Cheng (https://github.com/MCG-NKU/CVPR_Template)
+% modified and extended by Stefan Roth (stefan.roth@NOSPAMtu-darmstadt.de)
+
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage[pagenumbers]{cvpr} % To force page numbers, e.g. for an arXiv version
+
+% Include other packages here, before hyperref.
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{paralist}
+
+\usepackage[pagebackref,breaklinks,colorlinks]{hyperref}
+
+
+% Support for easy cross-referencing
+\usepackage[capitalize]{cleveref}
+\crefname{section}{Sec.}{Secs.}
+\Crefname{section}{Section}{Sections}
+\Crefname{table}{Table}{Tables}
+\crefname{table}{Tab.}{Tabs.}
+
+\newcommand{\xhdr}[1]{\vspace{3pt}\noindent\textbf{#1}}
+%%%%%%%%% PAPER ID  - PLEASE UPDATE
+\def\cvprPaperID{*****} % *** Enter the CVPR Paper ID here
+\def\confName{AI535}
+\def\confYear{S2022}
+
+
+\begin{document}
+
+%%%%%%%%% TITLE - PLEASE UPDATE
+\title{Vision Transformer Pruning}
+
+\author{Bui, Vy \hspace{20pt} Chen, Chiu-Chun \hspace{20 pt} Helms, Derek \hspace{20 pt} Mueller, Sebastian \\
+Oregon State University\\
+{\tt\small \{buivy, chenchiu, helmsd, FILLIN\}@oregonstate.edu}
+}
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%% ABSTRACT %%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{abstract}
+   The ABSTRACT is to be in fully justified italicized text, at the top of the left-hand column, below the author and affiliation information.
+   Use the word ``Abstract'' as the title, in 12-point Times, boldface type, centered relative to the column, initially capitalized.
+   The abstract is to be in 10-point, single-spaced type.
+\end{abstract}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%% INTRODUCTION %%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+\label{sec:intro}
+\textit{Give a general introduction on vision transformers, discuss start in NLP and transfer to vision tasks, who first implemented ViT, brief discussion on CNN's and how they are the main architecture for vision tasks, discuss what we will do in the paper (implementing ViT and pruning methods), can discuss results if we want to add a brief statement on how much the model was reduced by.}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%% RELATED WORK %%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Related Work}
+\label{sec:related work}
+
+\xhdr{Vision Transformers.}
+\textit{Discuss background on transformers, who introduced ViT, where it started and where it is now (in terms of size/performance), compare to CNN models, etc.}
+
+\xhdr{Pruning Methods.}
+\textit{Discuss general idea of pruning methods, can discuss transformer pruning in NLP, discuss multiple pruning methods (not only the ones we implement), what are the advantages or disadvantages, etc.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%% METHODOLOGY %%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Methodology}
+\label{sec:related work}
+
+\subsection{Implementation of DeiT Baseline}
+\textit{Discuss short background of DeiT model, who implemented/create the model architecture, that it is pre-trained on ImageNet-1k, discuss baseline results (accuracy, flops, and params), etc. }
+
+\subsection{Pruning Method Implementation}
+\textit{Discuss the pruning method being used (reference paper and discuss what parts of ViT are being pruned - which layers), what we expect the reduction to be, short discussion on accuracy/FLOPs trade-off, any limitations/known issues with pruning.}
+
+\subsection{Evaluating Model Performance}
+\textit{Discuss how we are evaluating the model, what data set are we using, maybe add brief background on ImageNet-1k, define FLOPs in terms of our project, define what parameters are being measured (i.e. layers), etc.}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%% RESULTS %%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Results}
+\label{sec:results}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%% CONCLUSION %%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusion}
+\label{sec:conclsion}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%% REFERENCES %%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\small
+\bibliographystyle{ieee_fullname}
+\bibliography{egbib}
+}
+
+%%%%%% BELOW IS FORMATTING INFORMATION (NEED TO KEEP REFERENCES) %%%%%%%%%
+
+\newpage \; \newpage
+
+%%%%%%%%% BODY TEXT
+\section{Final Report Guidelines}
+\label{sec:intro}
+
+This document serves as a style guide for the AI535 Final Report and describes the expected content. 
+
+\subsection{Content} 
+Reports should be similar to real papers -- having a title, abstract, introduction, discussion of background material and related work, detailed technical approach, experimental results, and a conclusion. The typical section layout is below along with questions typically covered by each in a full paper. Depending on your project (and its progress), you may not have full answers to each.\\[-5pt]
+\begin{compactenum}[1)]
+    \item \textbf{Abstract.} A short 5-6 sentence overview. What is the problem? Why should we care? How do you address it? What are your general results? Think of this as an ``ad'' for your work that helps readers decide if it is relevant.\\
+    
+    \item \textbf{Introduction.} What is being studied? Why is it important? What problems keep it from being solved already? How does your approach resolve these? What experiments suggest your approach was effective? There are dedicated sections later for some of these questions, just    provide a summary and motivation here. \\
+    
+    \item \textbf{Related Work.} How has prior work addressed this problem? How is your approach different / similar to the prior work? Organize, contrast, and compare with others -- don't just list prior work, that adds little value! \\
+    
+    \item \textbf{Methodology.} What did you do? And why? Be specific about algorithmic details. Be clear about what ideas are novel vs.~what you are using from others. Try to organize this section appropriately -- if your algorithm has multiple stages, separate them out as subsections.  \\
+    
+    \item \textbf{Results.} What is the experimental setting used to evaluate your approach? Why is that setting appropriate? How were the experiments run? What are the results? Are there reasonable baselines or prior work to compare to? If so, how does your approach compare? \\
+    
+    \item \textbf{Conclusion.} What was learned from this work? What does it suggest are useful things to do next? What are limitations of the approach or experiments?\\
+\end{compactenum}
+
+\noindent Your report should also end with a bibliography of works cited.  In this template, that is handled automatically with BibTex. For example, I might cite papers listed in \texttt{egbib.bib} like \cite{Alpher04, Alpher02, ALpher03} as a group or individually \cite{Alpher05}. \href{https://www.overleaf.com/learn/latex/Bibliography_management_with_bibtex}{See this tutorial for more information on BibTex.}
+
+% \begin{figure}[t]
+%     \centering
+%     \fbox{\rule{0pt}{2in} \rule{.9\linewidth}{0pt}}
+%     \caption{Example of a single-column figure}
+%     \label{fig:my_label_single}
+% \end{figure}
+% \begin{figure*}[t]
+%   \centering
+%   \begin{subfigure}{0.68\linewidth}
+%     \fbox{\rule{0pt}{2in} \rule{.9\linewidth}{0pt}}
+%     \caption{An example of a subfigure.}
+%     \label{fig:short-a}
+%   \end{subfigure}
+%   \hfill
+%   \begin{subfigure}{0.28\linewidth}
+%     \fbox{\rule{0pt}{2in} \rule{.9\linewidth}{0pt}}
+%     \caption{Another example of a subfigure.}
+%     \label{fig:short-b}
+%   \end{subfigure}
+%   \caption{Example of two-column figure with subfigures.}
+%   \label{fig:short}
+% \end{figure*}
+
+\subsection{Formatting}
+This document is the report template and is based off of the CVPR 2022 author template. Modifying text size, line spacing, or margins is prohibited. 
+
+\xhdr{Length.} Reports (including references and all figures) must be at least four pages and can be at most 8 pages. 
+
+
+
+
+\xhdr{Figures and Tables} Figures and tables must include captions and be centered. 
+
+When placing figures in \LaTeX, it's almost always best to use \verb+\includegraphics+, and to specify the figure width as a multiple of the line width as in the example below
+{\small\begin{verbatim}
+   \includegraphics[width=0.8\linewidth]
+                   {myfile.pdf}
+\end{verbatim}
+}
+\noindent Further, aligning figures at the top of the page is preferred {\small\begin{verbatim}
+   \begin{figure}[t]
+\end{verbatim}
+}
+
+
+For tables, no vertical lines should be present. Please us the \texttt{booktabs} package's \texttt{toprule}, \texttt{midrule}, and \texttt{bottomrule} commands for horizontal lines as in the example in Table \ref{tab:example}.
+
+
+
+
+\xhdr{Mathematics.} All equations appearing in the report should be numbered. For example, using the \texttt{equation} or \texttt{eqnarray} environments will handle this automatically:
+%
+\begin{equation}
+  E = m\cdot c^2
+  \label{eq:important}
+\end{equation}
+%
+\begin{eqnarray}
+a^2 + b^2 &=& c^2\\
+         &=& ln(e^{c^2})
+\end{eqnarray}
+%
+For further style tips regarding equations in prose, see \url{www.pamitc.org/documents/mermin.pdf}.
+
+\xhdr{Language.} Reports are expected to be in English with minimal spelling and grammar errors. Point will be deducted if these errors make understanding the report difficult.
+
+\subsection{Submission}
+Papers must be submitted as PDFs to Canvas -- no other format will be accepted. Only one report per group needs to be submitted.
+
+%------------------------------------------------------------------------
+
+
+
+
+\begin{table}[t]
+  \centering
+  \begin{tabular}{@{}lc@{}}
+    \toprule
+    Method & Frobnability \\
+    \midrule
+    Theirs & Frumpy \\
+    Yours & Frobbly \\
+    Ours & Makes one's heart Frob\\
+    \bottomrule
+  \end{tabular}
+  \caption{Results.   Ours is better.}
+  \label{tab:example}
+\end{table}
+
+%-------------------------------------------------------------------------
+
+
+
+
+
+%%%%%%%%% REFERENCES
+{\small
+\bibliographystyle{ieee_fullname}
+\bibliography{egbib}
+}
+
+\end{document}
