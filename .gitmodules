@@ -1,0 +1,3 @@
+[submodule "EdgeVisionTransformer"]
+	path = EdgeVisionTransformer
+	url = git@github.com:xudoong/EdgeVisionTransformer.git
