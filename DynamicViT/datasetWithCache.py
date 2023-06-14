@@ -49,6 +49,7 @@ def build_dataset(is_train, args):
         batch_size=args.batch_size,
         num_workers=2,
         collate_fn=collate_fn,
+        shuffle = True if is_train else False,
         drop_last=False
     )
 
