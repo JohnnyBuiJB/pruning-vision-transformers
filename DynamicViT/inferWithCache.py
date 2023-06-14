@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.backends.cudnn as cudnn
 import json
 
-from datasets import load_dataset, Image
+from datasetWithCache import build_dataset
 
 from pathlib import Path
 
@@ -92,23 +92,10 @@ def get_args_parser():
 
     return parser
 
-def collate_fn(batch):
-    images = [transform(img_path["image"].convert('RGB')) for img_path in batch] # create list of images 
-    labels = [item["label"] for item in batch] # create list of labels
-    return {"image": torch.stack(images), "label": labels} # return dict of images and labels
-
 def main(args):
 
     cudnn.benchmark = True
-    dataset_val = load_dataset('imagenet-1k', split='validation', cache_dir=args.data_path)
-
-    data_loader_val = torch.utils.data.DataLoader(
-        dataset_val,
-        batch_size=args.batch_size,
-        num_workers=2,
-        collate_fn=collate_fn,
-        drop_last=False
-    )
+    dataset, _ = build_dataset(is_train=False, args=args)
 
     base_rate = args.base_rate
     KEEP_RATE1 = [base_rate, base_rate ** 2, base_rate ** 3]
@@ -136,7 +123,7 @@ def main(args):
     n_parameters = sum(p.numel() for p in model.parameters())
     print('number of params:', n_parameters)
 
-    #validate(data_loader_val, model)
+    validate(dataset, model)
     calc_flops(model)
 
 class AverageMeter(object):
