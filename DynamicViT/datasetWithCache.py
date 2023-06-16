@@ -37,7 +37,7 @@ def build_dataset(is_train, args):
     print("---------------------------")
     if args.data_set == 'IMNET':
         print("reading from datapath", args.data_path)
-        split = 'train' if is_train else 'validation'
+        split = 'train[:10%]' if is_train else 'validation'
         dataset = load_dataset('imagenet-1k', split=split, cache_dir=args.data_path)
         nb_classes = 1000
     else:
