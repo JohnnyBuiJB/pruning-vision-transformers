@@ -448,7 +448,7 @@ def cosine_scheduler(base_value, final_value, epochs, niter_per_ep, warmup_epoch
     assert len(schedule) == epochs * niter_per_ep
     return schedule
 
-def save_model(args, epoch, model, model_without_ddp, optimizer, loss_scaler, best_acc, best_acc_ema, model_ema=None):
+def save_model(args, epoch, model, model_without_ddp, optimizer, loss_scaler, model_ema=None):
     output_dir = Path(args.output_dir)
     epoch_name = str(epoch)
     checkpoint_paths = [output_dir / ('checkpoint-%s.pth' % epoch_name)]
@@ -459,8 +459,6 @@ def save_model(args, epoch, model, model_without_ddp, optimizer, loss_scaler, be
             'epoch': epoch,
             'scaler': loss_scaler.state_dict(),
             'args': args,
-            'best': best_acc,
-            'best_ema': best_acc_ema
         }
 
         if model_ema is not None:

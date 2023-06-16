@@ -24,7 +24,7 @@ from timm.utils import ModelEma
 from optim_factory import create_optimizer, LayerDecayValueAssigner
 
 from datasetWithCache import build_dataset, build_transform
-from engineWithCache import train_one_epoch, evaluate
+from engineWithCache import train_one_epoch
 
 from utils import NativeScalerWithGradNormCount as NativeScaler
 import utils
@@ -194,8 +194,6 @@ def main(args):
     print(args)
     device = torch.device(args.device)
 
-    print([args.distributed], [args.gpu])
-
     # fix the seed for reproducibility
     seed = args.seed + utils.get_rank()
     torch.manual_seed(seed)
@@ -336,7 +334,7 @@ def main(args):
     print('number of params:', n_parameters)
 
     total_batch_size = args.batch_size * args.update_freq * utils.get_world_size()
-    num_training_steps_per_epoch = len(dataset_train) // total_batch_size
+    num_training_steps_per_epoch = len(dataset_train) // (2*total_batch_size)
     print("LR = %.8f" % args.lr)
     print("Batch size = %d" % total_batch_size)
     print("Update frequent = %d" % args.update_freq)
@@ -359,7 +357,7 @@ def main(args):
         model_without_ddp = model.module
 
     optimizer = create_optimizer(
-        args, model_without_ddp, skip_list=None,
+        args, model_without_ddp,
         get_num_layer=assigner.get_layer_id if assigner is not None else None, 
         get_layer_scale=assigner.get_scale if assigner is not None else None,
         bone_lr_scale=args.lr_scale)
@@ -381,26 +379,13 @@ def main(args):
 
     print("criterion = %s" % str(criterion))
 
-    max_accuracy = 0.0
-    if args.model_ema and args.model_ema_eval:
-        max_accuracy_ema = 0.0
-
-    max_accuracy, max_accuracy_ema = utils.auto_load_model(
-        args=args, model=model, model_without_ddp=model_without_ddp,
-        optimizer=optimizer, loss_scaler=loss_scaler, model_ema=model_ema)
-
-    if args.eval:
-        print(f"Eval only mode")
-        test_stats = evaluate(dataset_val, model, device, use_amp=args.use_amp)
-        print(f"Accuracy of the network on {len(dataset_val)} test images: {test_stats['acc1']:.5f}%")
-        return
 
     print("Start training for %d epochs" % args.epochs)
     start_time = time.time()
     for epoch in range(args.start_epoch, args.epochs):
         if log_writer is not None:
             log_writer.set_step(epoch * num_training_steps_per_epoch * args.update_freq)
-        train_stats = train_one_epoch(
+        _ = train_one_epoch(
             model, criterion, dataset_train, optimizer,
             device, epoch, loss_scaler, args.clip_grad, model_ema, mixup_fn,
             log_writer=log_writer, start_steps=epoch * num_training_steps_per_epoch,
@@ -409,57 +394,10 @@ def main(args):
             use_amp=args.use_amp
         )
 
-        if dataset_val is not None:
-            test_stats = evaluate(dataset_val, model, device, use_amp=args.use_amp)
-            print(f"Accuracy of the model on the 50000 test images: {test_stats['acc1']:.1f}%")
-            if max_accuracy < test_stats["acc1"]:
-                max_accuracy = test_stats["acc1"]
-                if args.output_dir and args.save_ckpt:
-                    utils.save_model(
-                        args=args, model=model, model_without_ddp=model_without_ddp, optimizer=optimizer,
-                        loss_scaler=loss_scaler, epoch="best", model_ema=model_ema, best_acc=max_accuracy, best_acc_ema=max_accuracy_ema)
-            print(f'Max accuracy: {max_accuracy:.2f}%')
+        utils.save_model(
+            args=args, model=model, model_without_ddp=model_without_ddp, optimizer=optimizer,
+            loss_scaler=loss_scaler, epoch=epoch)
 
-            if log_writer is not None:
-                log_writer.update(test_acc1=test_stats['acc1'], head="perf", step=epoch)
-                log_writer.update(test_acc5=test_stats['acc5'], head="perf", step=epoch)
-                log_writer.update(test_loss=test_stats['loss'], head="perf", step=epoch)
-
-            log_stats = {**{f'train_{k}': v for k, v in train_stats.items()},
-                         **{f'test_{k}': v for k, v in test_stats.items()},
-                         'epoch': epoch,
-                         'n_parameters': n_parameters}
-
-            # repeat testing routines for EMA, if ema eval is turned on
-            if args.model_ema and args.model_ema_eval:
-                test_stats_ema = evaluate(dataset_val, model_ema.ema, device, use_amp=args.use_amp)
-                print(f"Accuracy of the model EMA on {len(dataset_val)} test images: {test_stats_ema['acc1']:.1f}%")
-                if max_accuracy_ema < test_stats_ema["acc1"]:
-                    max_accuracy_ema = test_stats_ema["acc1"]
-                    if args.output_dir and args.save_ckpt:
-                        utils.save_model(
-                            args=args, model=model, model_without_ddp=model_without_ddp, optimizer=optimizer,
-                            loss_scaler=loss_scaler, epoch="best-ema", model_ema=model_ema, best_acc=max_accuracy, best_acc_ema=max_accuracy_ema)
-                print(f'Max EMA accuracy: {max_accuracy_ema:.2f}%')
-                if log_writer is not None:
-                    log_writer.update(test_acc1_ema=test_stats_ema['acc1'], head="perf", step=epoch)
-                log_stats.update({**{f'test_{k}_ema': v for k, v in test_stats_ema.items()}})
-        else:
-            log_stats = {**{f'train_{k}': v for k, v in train_stats.items()},
-                         'epoch': epoch,
-                         'n_parameters': n_parameters}
-
-        if args.output_dir and args.save_ckpt:
-            if (epoch + 1) % args.save_ckpt_freq == 0 or epoch + 1 == args.epochs:
-                utils.save_model(
-                    args=args, model=model, model_without_ddp=model_without_ddp, optimizer=optimizer,
-                    loss_scaler=loss_scaler, epoch=epoch, model_ema=model_ema, best_acc=max_accuracy, best_acc_ema=max_accuracy_ema)
-
-        if args.output_dir and utils.is_main_process():
-            if log_writer is not None:
-                log_writer.flush()
-            with open(os.path.join(args.output_dir, "log.txt"), mode="a", encoding="utf-8") as f:
-                f.write(json.dumps(log_stats) + "\n")
 
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
